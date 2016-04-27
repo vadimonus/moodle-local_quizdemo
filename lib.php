@@ -43,7 +43,7 @@ function local_quizdemo_extend_settings_navigation(navigation_node $nav, context
         return;
     }
     $parentnode = $nav->get('modulesettings');
-    $url = new moodle_url('/local/quizdemo/create.php', array('cmid' => $context->instanceid));
+    $url = new moodle_url('/local/quizdemo/confirm.php', array('cmid' => $context->instanceid));
     $parentnode->add(get_string('createdemoquiz', 'local_quizdemo'), $url, navigation_node::TYPE_SETTING,
             null, 'createdemoquiz');
 

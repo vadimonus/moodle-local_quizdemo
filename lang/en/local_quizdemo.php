@@ -23,4 +23,7 @@
  */
 
 $string['createdemoquiz'] = 'Create demo of this quiz';
+$string['confirmheader'] = 'Creating quiz demo';
+$string['newname'] = 'Name for demo quiz';
+$string['newnamedefault'] = '{$a} (demonstration version)';
 $string['pluginname'] = 'Create demo quiz';
