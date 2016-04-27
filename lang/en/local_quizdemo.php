@@ -22,5 +22,5 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['createdemo'] = 'Create demo of this quiz';
+$string['createdemoquiz'] = 'Create demo of this quiz';
 $string['pluginname'] = 'Create demo quiz';

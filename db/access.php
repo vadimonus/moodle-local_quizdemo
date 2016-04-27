@@ -22,29 +22,18 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
-/**
- * Adds quizdemo item into quiz module.
- *
- * @param navigation_node $nav navigation node object
- * @param context $context course context object
- */
-function local_quizdemo_extend_settings_navigation(navigation_node $nav, context $context) {
-    global $COURSE, $PAGE;
+$capabilities = array(
 
-    if ($context->contextlevel != CONTEXT_MODULE) {
-        return;
-    }
-    if ($PAGE->cm->modname != 'quiz') {
-        return;
-    }
-    if (!has_capability('local/quizdemo:createquizdemo', context_course::instance($COURSE->id))) {
-        return;
-    }
-    $parentnode = $nav->get('modulesettings');
-    $url = new moodle_url('/local/quizdemo/create.php', array('cmid' => $context->instanceid));
-    $parentnode->add(get_string('createdemoquiz', 'local_quizdemo'), $url, navigation_node::TYPE_SETTING,
-            null, 'createdemoquiz');
+    'local/quizdemo:createquizdemo' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
 
-}
+);
+
