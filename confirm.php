@@ -58,6 +58,7 @@ if ($mform->is_cancelled()) {
     //Action
 
     redirect(new moodle_url('/mod/quiz/view.php', array('id' => $cmid)));
+    $newcmid = local_quizdemo_helper::create_demo($cmid, $data);
 }
 echo $OUTPUT->header();
 $mform->display();
