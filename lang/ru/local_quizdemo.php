@@ -22,8 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['createdemoquiz'] = 'Create demo of this quiz';
-$string['confirmheader'] = 'Creating quiz demo';
-$string['newname'] = 'Name for new quiz';
-$string['newnamedefault'] = '{$a} (demonstration version)';
-$string['pluginname'] = 'Create demo quiz';
+$string['createdemoquiz'] = 'Создать демонстрационную версию этого теста';
+$string['confirmheader'] = 'Создание демонстрационной версии теста';
+$string['newname'] = 'Название нового теста';
+$string['newnamedefault'] = '{$a} (демонстрационная версия)';
+$string['pluginname'] = 'Создание демонстрационной версии теста';
