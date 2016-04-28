@@ -36,8 +36,8 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 }
 
 require_login($course, false, $cm);
-$course_context = context_course::instance($cm->course);
-require_capability('local/quizdemo:createquizdemo', $course_context);
+$coursecontext = context_course::instance($cm->course);
+require_capability('local/quizdemo:createquizdemo', $coursecontext);
 
 $url = new moodle_url('/local/quizdemo/confirm.php', array('cmid' => $cmid));
 $PAGE->set_url($url);
@@ -57,8 +57,6 @@ if ($mform->is_cancelled()) {
 } else if ($data = $mform->get_data()) {
     $newcmid = local_quizdemo_helper::create_demo($cmid, $data);
     redirect(new moodle_url('/course/view.php', array('id' => $course->id)));
-    // Alternate landing redirect(new moodle_url('/mod/quiz/edit.php', array('id' => $newcmid)));
-    // Alternate landing redirect(new moodle_url('/course/modedit.php', array('update' => $newcmid)));
 }
 echo $OUTPUT->header();
 $mform->display();

@@ -45,14 +45,14 @@ class local_quizdemo_helper {
         $newcm = self::duplicate($cmid, $newdata);
         self::replace_random_questions($newcm);
         return $newcm->id;
-   }
+    }
 
     /**
      * Duplicates course module and changes it's name.
      *
      * @param int $cmid Source course module id
      * @param object $newdata New data for module
-     * @return object New course module object
+     * @return stdClass New course module object
      */
     private static function duplicate($cmid, $newdata) {
         global $CFG, $DB;
@@ -77,7 +77,7 @@ class local_quizdemo_helper {
     /**
      * Replaces random questions with fixed.
      *
-     * @param object $cm Course module id
+     * @param object $cm Course module object
      */
     private static function replace_random_questions($cm) {
         global $DB;
@@ -173,7 +173,7 @@ class local_quizdemo_helper {
         }
 
         $questionsids = array();
-        foreach($questions as $slot => $question) {
+        foreach ($questions as $slot => $question) {
             $questionsids[$slot] = $question->id;
         }
 
