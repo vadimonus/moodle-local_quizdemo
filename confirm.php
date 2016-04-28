@@ -55,10 +55,10 @@ $mform->set_data($data);
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/mod/quiz/view.php', array('id' => $cmid)));
 } else if ($data = $mform->get_data()) {
-    //Action
-
-    redirect(new moodle_url('/mod/quiz/view.php', array('id' => $cmid)));
     $newcmid = local_quizdemo_helper::create_demo($cmid, $data);
+    redirect(new moodle_url('/course/view.php', array('id' => $course->id)));
+    // Alternate landing redirect(new moodle_url('/mod/quiz/edit.php', array('id' => $newcmid)));
+    // Alternate landing redirect(new moodle_url('/course/modedit.php', array('update' => $newcmid)));
 }
 echo $OUTPUT->header();
 $mform->display();
