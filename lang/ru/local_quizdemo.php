@@ -27,3 +27,4 @@ $string['confirmheader'] = 'Создание демонстрационной в
 $string['newname'] = 'Название нового теста';
 $string['newnamedefault'] = '{$a} (демонстрационная версия)';
 $string['pluginname'] = 'Создание демонстрационной версии теста';
+$string['quizdemo:createquizdemo'] = 'Создавать демонстрационную версию теста';
