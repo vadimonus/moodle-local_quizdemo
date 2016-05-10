@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_quizdemo';
-$plugin->version   = 2016042801;
-$plugin->release = '0.9';
-$plugin->maturity = MATURITY_RC;
-$plugin->requires  = 2015051100; // Moodle 3.0.
+$plugin->version   = 2016051100;
+$plugin->release = '1.0';
+$plugin->maturity = MATURITY_STABLE;
+$plugin->requires  = 2015051100; // Moodle 2.9.

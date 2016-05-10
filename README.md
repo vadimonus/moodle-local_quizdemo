@@ -3,7 +3,7 @@ Moodle plugin for creation demonstration version of quiz
 
 Requirements
 ------------
-- Moodle 3.0 (build 2015111600) or later.
+- Moodle 2.9 (build 2015051100) or later.
 
 Installation
 ------------
