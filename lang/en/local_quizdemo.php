@@ -27,4 +27,5 @@ $string['confirmheader'] = 'Creating quiz demo';
 $string['newname'] = 'Name for new quiz';
 $string['newnamedefault'] = '{$a} (demonstration version)';
 $string['pluginname'] = 'Create demo quiz';
+$string['privacy:metadata'] = 'The plugin does not store any personal data.';
 $string['quizdemo:createquizdemo'] = 'Create demonstration version of quiz';

@@ -30,5 +30,9 @@ Links
 
 Changes
 -------
-Release 0.9 (build 2016042800):
-- First public release.
+- Release 0.9 (build 2016042800):
+    - First public release.
+- Release 1.0 (build 2016051100):
+    - Code style fixes.
+- Release 1.1 (build 2020061300):
+    - Privacy API support.
