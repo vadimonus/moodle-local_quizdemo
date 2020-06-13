@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tool for deleting question category with question and subcategories.
+ * Tool for creating demo version with specific questions of quiz with random questions.
  *
  * @package    local_quizdemo
  * @copyright  2020 Vadim Dvorovenko <Vadimon@mail.ru>
@@ -27,7 +27,7 @@ namespace local_quizdemo\privacy;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Tool for deleting question category with question and subcategories.
+ * Tool for creating demo version with specific questions of quiz with random questions.
  *
  * @package    local_quizdemo
  * @copyright  2020 Vadim Dvorovenko <Vadimon@mail.ru>
