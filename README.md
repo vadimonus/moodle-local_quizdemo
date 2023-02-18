@@ -31,8 +31,10 @@ Links
 Changes
 -------
 - Release 0.9 (build 2016042800):
-    - First public release.
+  - First public release.
 - Release 1.0 (build 2016051100):
-    - Code style fixes.
+  - Code style fixes.
 - Release 1.1 (build 2020061300):
-    - Privacy API support.
+  - Privacy API support.
+- Release 2.0 (build 2023021801):
+  - Moodle 4 support.

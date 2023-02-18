@@ -22,11 +22,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace local_quizdemo;
 
-require_once("$CFG->libdir/datalib.php");
-require_once("$CFG->dirroot/course/lib.php");
-require_once("$CFG->dirroot/mod/quiz/locallib.php");
+use coding_exception;
+use core_question\local\bank\random_question_loader;
+use mod_quiz\question\qubaids_for_users_attempts;
+use moodle_exception;
+use question_bank;
+use question_engine;
+use quiz;
+use stdClass;
 
 /**
  * Helper class.
@@ -35,7 +40,7 @@ require_once("$CFG->dirroot/mod/quiz/locallib.php");
  * @copyright  2016 Vadim Dvorovenko <Vadimon@mail.ru>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_quizdemo_helper {
+class helper {
 
     /**
      * Creates quiz demonstration version.
@@ -54,7 +59,7 @@ class local_quizdemo_helper {
      *
      * @param int $cmid Source course module id
      * @param object $newdata New data for module
-     * @return stdClass New course module object
+     * @return stdClass|\cm_info New course module object
      */
     private static function duplicate($cmid, $newdata) {
         global $CFG, $DB;
@@ -87,8 +92,8 @@ class local_quizdemo_helper {
         $quizobj = quiz::create($cm->instance, null);
         $newquestionids = self::get_fixed_questions($quizobj);
 
-        $savedquestions = $DB->get_records('quiz_slots', array('quizid' => $quizobj->get_quizid()));
-        $savedquestionsbyslot = array();
+        $savedquestions = $DB->get_records('quiz_slots', ['quizid' => $quizobj->get_quizid()]);
+        $savedquestionsbyslot = [];
         foreach ($savedquestions as $savedquestion) {
             $savedquestionsbyslot[$savedquestion->slot] = $savedquestion;
         }
@@ -111,7 +116,7 @@ class local_quizdemo_helper {
 
         $quba = question_engine::make_questions_usage_by_activity('mod_quiz', $quizobj->get_context());
         $quba->set_preferred_behaviour($quizobj->get_quiz()->preferredbehaviour);
-        $qubaids = new \mod_quiz\question\qubaids_for_users_attempts($quizobj->get_quizid(), $USER->id);
+        $qubaids = new qubaids_for_users_attempts($quizobj->get_quizid(), $USER->id);
 
         $quizobj->preload_questions();
         $quizobj->load_questions();
@@ -119,8 +124,8 @@ class local_quizdemo_helper {
         // First load all the non-random questions.
         $randomfound = false;
         $slot = 0;
-        $questions = array();
-        $page = array();
+        $questions = [];
+        $page = [];
         foreach ($quizobj->get_questions() as $questiondata) {
             $slot += 1;
             $page[$slot] = $questiondata->page;
@@ -137,7 +142,7 @@ class local_quizdemo_helper {
         // Then find a question to go in place of each random question.
         if ($randomfound) {
             $slot = 0;
-            $usedquestionids = array();
+            $usedquestionids = [];
             foreach ($questions as $question) {
                 if (isset($usedquestions[$question->id])) {
                     $usedquestionids[$question->id] += 1;
@@ -145,7 +150,7 @@ class local_quizdemo_helper {
                     $usedquestionids[$question->id] = 1;
                 }
             }
-            $randomloader = new \core_question\bank\random_question_loader($qubaids, $usedquestionids);
+            $randomloader = new random_question_loader($qubaids, $usedquestionids);
             foreach ($quizobj->get_questions() as $questiondata) {
                 $slot += 1;
                 if ($questiondata->qtype != 'random') {
@@ -165,7 +170,10 @@ class local_quizdemo_helper {
                 }
 
                 // Normal case, pick one at random.
-                $questionid = $randomloader->get_next_question_id($questiondata->category, (bool) $questiondata->questiontext);
+                $questionid = $randomloader->get_next_question_id(
+                    $questiondata->category,
+                    (bool)$questiondata->questiontext
+                );
                 if ($questionid === null) {
                     throw new moodle_exception('notenoughrandomquestions', 'quiz', $quizobj->view_url(), $questiondata);
                 }
@@ -174,7 +182,7 @@ class local_quizdemo_helper {
             }
         }
 
-        $questionsids = array();
+        $questionsids = [];
         foreach ($questions as $slot => $question) {
             $questionsids[$slot] = $question->id;
         }

@@ -22,9 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace local_quizdemo\form;
 
-require_once($CFG->libdir . '/formslib.php');
+require_once("$CFG->libdir/formslib.php");
 
 /**
  * Form for confirmation of creating quiz demo.
@@ -33,14 +33,12 @@ require_once($CFG->libdir . '/formslib.php');
  * @copyright  2016 Vadim Dvorovenko <Vadimon@mail.ru>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_quizdemo_confirm_form extends moodleform {
+class confirm_form extends \moodleform {
 
     /**
      * Form definition.
      */
     protected function definition() {
-        global $OUTPUT;
-
         $mform = $this->_form;
 
         $mform->addElement('header', 'header', get_string('confirmheader', 'local_quizdemo'));

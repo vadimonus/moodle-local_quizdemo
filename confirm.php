@@ -22,6 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_quizdemo\form\confirm_form;
+use local_quizdemo\helper;
+
 require_once("../../config.php");
 
 require_login();
@@ -29,34 +32,34 @@ require_login();
 $cmid = required_param('cmid', PARAM_INT); // Course Module ID, or ...
 
 if (!$cm = get_coursemodule_from_id('quiz', $cmid)) {
-    print_error('invalidcoursemodule');
+    throw new moodle_exception('invalidcoursemodule');
 }
-if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
-    print_error('coursemisconf');
+if (!$course = $DB->get_record('course', ['id' => $cm->course])) {
+    throw new moodle_exception('coursemisconf');
 }
 
 require_login($course, false, $cm);
 $coursecontext = context_course::instance($cm->course);
 require_capability('local/quizdemo:createquizdemo', $coursecontext);
 
-$url = new moodle_url('/local/quizdemo/confirm.php', array('cmid' => $cmid));
+$url = new moodle_url('/local/quizdemo/confirm.php', ['cmid' => $cmid]);
 $PAGE->set_url($url);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('confirmheader', 'local_quizdemo'));
 $PAGE->set_heading($COURSE->fullname);
 $PAGE->set_pagelayout('incourse');
 
-$mform = new local_quizdemo_confirm_form($url, array('cm' => $cm));
+$mform = new confirm_form($url, ['cm' => $cm]);
 $data = new stdClass();
 $name = $cm->name;
 $data->name = get_string('newnamedefault', 'local_quizdemo', $name);
 $mform->set_data($data);
 
 if ($mform->is_cancelled()) {
-    redirect(new moodle_url('/mod/quiz/view.php', array('id' => $cmid)));
+    redirect(new moodle_url('/mod/quiz/view.php', ['id' => $cmid]));
 } else if ($data = $mform->get_data()) {
-    $newcmid = local_quizdemo_helper::create_demo($cmid, $data);
-    redirect(new moodle_url('/course/view.php', array('id' => $course->id)));
+    $newcmid = helper::create_demo($cmid, $data);
+    redirect(new moodle_url('/course/view.php', ['id' => $course->id]));
 }
 echo $OUTPUT->header();
 $mform->display();
