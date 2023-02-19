@@ -24,7 +24,9 @@
 
 namespace local_quizdemo\form;
 
-require_once("$CFG->libdir/formslib.php");
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->libdir . '/formslib.php');
 
 /**
  * Form for confirmation of creating quiz demo.
@@ -54,5 +56,4 @@ class confirm_form extends \moodleform {
 
         $this->add_action_buttons(true);
     }
-
 }

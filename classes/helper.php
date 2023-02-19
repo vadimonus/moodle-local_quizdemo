@@ -24,14 +24,17 @@
 
 namespace local_quizdemo;
 
-use coding_exception;
 use core_question\local\bank\random_question_loader;
-use mod_quiz\question\qubaids_for_users_attempts;
+use mod_quiz\question\bank\qbank_helper;
+use mod_quiz\structure;
 use moodle_exception;
-use question_bank;
-use question_engine;
+use qubaid_list;
 use quiz;
 use stdClass;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/quiz/locallib.php');
 
 /**
  * Helper class.
@@ -49,9 +52,36 @@ class helper {
      * @param object $newdata Data from form
      */
     public static function create_demo($cmid, $newdata) {
+        $cm = get_coursemodule_from_id('quiz', $cmid);
+        $replacements = self::get_replacements($cm);
         $newcm = self::duplicate($cmid, $newdata);
-        self::replace_random_questions($newcm);
+        self::replace_questions($newcm, $replacements);
         return $newcm->id;
+    }
+
+    /**
+     * Generate replacements array.
+     *
+     * @param object $cm
+     * @return array [$slotnumber => $fixedquestionid]
+     * @throws moodle_exception
+     */
+    private static function get_replacements(object $cm): array {
+        $quiz = quiz::create($cm->instance, null);
+        $structure = $quiz->get_structure();
+        $randomloader = static::get_random_loader($structure);
+        $slots = $structure->get_slots();
+
+        $result = [];
+        foreach ($slots as $slot) {
+            $slotnumber = $slot->slot;
+            $questiontype = $structure->get_question_type_for_slot($slotnumber);
+            if ($questiontype == 'random') {
+                $fixedquestionid = static::get_fixed_question_id($quiz, $slot, $randomloader);
+                $result[$slotnumber] = $fixedquestionid;
+            }
+        }
+        return $result;
     }
 
     /**
@@ -82,112 +112,116 @@ class helper {
     }
 
     /**
-     * Replaces random questions with fixed.
+     * Replaces random questions with fixed using provided array.
      *
      * @param object $cm Course module object
+     * @param array $replace [$slotnumber => $fixedquestionid]
+     * @throws moodle_exception
      */
-    private static function replace_random_questions($cm) {
-        global $DB;
-
-        $quizobj = quiz::create($cm->instance, null);
-        $newquestionids = self::get_fixed_questions($quizobj);
-
-        $savedquestions = $DB->get_records('quiz_slots', ['quizid' => $quizobj->get_quizid()]);
-        $savedquestionsbyslot = [];
-        foreach ($savedquestions as $savedquestion) {
-            $savedquestionsbyslot[$savedquestion->slot] = $savedquestion;
-        }
-        foreach ($savedquestionsbyslot as $slot => $savedquestion) {
-            if (!empty($newquestionids[$slot]) && $savedquestion->questionid != $newquestionids[$slot]) {
-                $savedquestion->questionid = $newquestionids[$slot];
-                $DB->update_record('quiz_slots', $savedquestion);
-            }
+    private static function replace_questions(object $cm, array $replace): void {
+        $quiz = quiz::create($cm->instance, null);
+        $structure = $quiz->get_structure();
+        foreach ($replace as $slotnumber => $fixedquestionid) {
+            $slot = $structure->get_slot_by_number($slotnumber);
+            static::replace_question($quiz, $slot, $fixedquestionid);
         }
     }
 
     /**
-     * Get fuxed questions array for this quiz.
+     * Creates random loader to replaces random questions with fixed.
      *
-     * @param quiz $quizobj Quiz object
-     * @return array Array of questions id, with slot as key.
+     * @param structure $structure
+     * @return random_question_loader
      */
-    private static function get_fixed_questions($quizobj) {
-        global $DB, $USER;
-
-        $quba = question_engine::make_questions_usage_by_activity('mod_quiz', $quizobj->get_context());
-        $quba->set_preferred_behaviour($quizobj->get_quiz()->preferredbehaviour);
-        $qubaids = new qubaids_for_users_attempts($quizobj->get_quizid(), $USER->id);
-
-        $quizobj->preload_questions();
-        $quizobj->load_questions();
-
-        // First load all the non-random questions.
-        $randomfound = false;
-        $slot = 0;
-        $questions = [];
-        $page = [];
-        foreach ($quizobj->get_questions() as $questiondata) {
-            $slot += 1;
-            $page[$slot] = $questiondata->page;
-            if ($questiondata->qtype == 'random') {
-                $randomfound = true;
-                continue;
-            }
-            if (!$quizobj->get_quiz()->shuffleanswers) {
-                $questiondata->options->shuffleanswers = false;
-            }
-            $questions[$slot] = $questiondata;
-        }
-
-        // Then find a question to go in place of each random question.
-        if ($randomfound) {
-            $slot = 0;
-            $usedquestionids = [];
-            foreach ($questions as $question) {
-                if (isset($usedquestions[$question->id])) {
-                    $usedquestionids[$question->id] += 1;
-                } else {
-                    $usedquestionids[$question->id] = 1;
-                }
-            }
-            $randomloader = new random_question_loader($qubaids, $usedquestionids);
-            foreach ($quizobj->get_questions() as $questiondata) {
-                $slot += 1;
-                if ($questiondata->qtype != 'random') {
-                    continue;
-                }
-
-                // Deal with fixed random choices for testing.
-                if (isset($questionids[$quba->next_slot_number()])) {
-                    if ($randomloader->is_question_available($questiondata->category, (bool) $questiondata->questiontext,
-                                    $questionids[$quba->next_slot_number()])) {
-                        $questions[$slot] = question_bank::load_question($questionids[$quba->next_slot_number()],
-                                        $quizobj->get_quiz()->shuffleanswers);
-                        continue;
-                    } else {
-                        throw new coding_exception('Forced question id not available.');
-                    }
-                }
-
-                // Normal case, pick one at random.
-                $questionid = $randomloader->get_next_question_id(
-                    $questiondata->category,
-                    (bool)$questiondata->questiontext
-                );
-                if ($questionid === null) {
-                    throw new moodle_exception('notenoughrandomquestions', 'quiz', $quizobj->view_url(), $questiondata);
-                }
-
-                $questions[$slot] = question_bank::load_question($questionid, $quizobj->get_quiz()->shuffleanswers);
-            }
-        }
-
-        $questionsids = [];
-        foreach ($questions as $slot => $question) {
-            $questionsids[$slot] = $question->id;
-        }
-
-        return $questionsids;
+    private static function get_random_loader(structure $structure): random_question_loader {
+        $qubaids = new qubaid_list([]);
+        $usedquestionids = static::get_used_question_ids($structure);
+        return new random_question_loader($qubaids, $usedquestionids);
     }
 
+    /**
+     * Gathers ids for used fixed question in quiz.
+     * These ids will be excluded, so test will not have duplicate questions
+     * after replacing random questions with fixed.
+     *
+     * @param structure $structure
+     * @return array
+     */
+    private static function get_used_question_ids(structure $structure): array {
+        $usedquestionids = [];
+        foreach ($structure->get_slots() as $slot) {
+            $slotnumber = $slot->slot;
+            $questiontype = $structure->get_question_type_for_slot($slotnumber);
+            if ($questiontype != 'random') {
+                $questionid = $structure->get_question_in_slot($slotnumber)->questionid;
+                $usedquestionids[$questionid] = ($usedquestionids[$questionid] ?? 0) + 1;
+            }
+        }
+        return $usedquestionids;
+    }
+
+    /**
+     * Returns new question id or throws exception if there is not enough questions.
+     *
+     * @param quiz $quizobj
+     * @param object $slot
+     * @param random_question_loader $randomloader
+     * @return int
+     * @throws moodle_exception
+     */
+    private static function get_fixed_question_id(quiz $quizobj, object $slot, random_question_loader $randomloader): int {
+        $fixedquestionid = $randomloader->get_next_question_id($slot->category, $slot->randomrecurse,
+            qbank_helper::get_tag_ids_for_slot($slot));
+        if ($fixedquestionid === null) {
+            throw new moodle_exception('notenoughrandomquestions', 'quiz', $quizobj->view_url(), $slot);
+        }
+        return $fixedquestionid;
+    }
+
+    /**
+     * Replaces random question in slot with fixed.
+     *
+     * @param quiz $quiz
+     * @param object $slot
+     * @param int $fixedquestionid
+     * @return void
+     */
+    private static function replace_question(quiz $quiz, object $slot, int $fixedquestionid): void {
+        static::delete_question_set_reference($slot);
+        static::add_question_reference($quiz, $slot, $fixedquestionid);
+    }
+
+    /**
+     * Removes random question reference for slot.
+     *
+     * @param object $slot
+     * @return void
+     */
+    private static function delete_question_set_reference(object $slot): void {
+        global $DB;
+        $questionsetreference = $DB->get_record('question_set_references',
+            ['component' => 'mod_quiz', 'questionarea' => 'slot', 'itemid' => $slot->id], '*', MUST_EXIST);
+        $DB->delete_records('question_set_references',
+            ['id' => $questionsetreference->id, 'component' => 'mod_quiz', 'questionarea' => 'slot']);
+    }
+
+    /**
+     * Adds fixed question reference for slot.
+     *
+     * @param quiz $quiz
+     * @param object $slot
+     * @param int $fixedquestionid
+     * @return void
+     */
+    private static function add_question_reference(quiz $quiz, object $slot, int $fixedquestionid): void {
+        global $DB;
+        $questionreferences = new \StdClass();
+        $questionreferences->usingcontextid = $quiz->get_context()->id;
+        $questionreferences->component = 'mod_quiz';
+        $questionreferences->questionarea = 'slot';
+        $questionreferences->itemid = $slot->id;
+        $questionreferences->questionbankentryid = get_question_bank_entry($fixedquestionid)->id;
+        $questionreferences->version = null; // Always latest.
+        $DB->insert_record('question_references', $questionreferences);
+    }
 }

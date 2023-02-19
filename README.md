@@ -12,9 +12,9 @@ Copy the demoquiz folder into your Moodle /local directory and visit your Admin 
 Usage
 -----
 Demonstration quiz is needed, for example, if you plan examination, and want to provide to 
-students some quiz preview with same structure. This module creates copy of quiz with random questions 
-selects some questions and puts them in place of random. So, students may try-out this quiz many times, 
-but will allways see the same questions, so your full question bank will be secured until examination.
+students some quiz preview with same structure. This module creates copy of quiz with random questions, 
+selects some questions and puts them in place of random. So, students may try out this quiz many times, 
+but will always see the same questions, so your full question bank will be secured until examination.
 
 After plugin install quiz navigation node will be extended with "Create demo of this quiz" item. 
 Press it, and fill in name for new quiz. Demo quiz will appear in course right after source quiz.
@@ -36,5 +36,6 @@ Changes
   - Code style fixes.
 - Release 1.1 (build 2020061300):
   - Privacy API support.
-- Release 2.0 (build 2023021801):
-  - Moodle 4 support.
+- Release 2.0 (build 2023021802):
+  - Plugin rewritten for Moodle 4 question structures.
+  - Tags are taken into account when choosing a random question.
