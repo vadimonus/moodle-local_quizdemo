@@ -3,11 +3,11 @@ Moodle plugin for creation demonstration version of quiz
 
 Requirements
 ------------
-- Moodle 2.9 (build 2015051100) or later.
+- Moodle 4.0 (build 2022041900) or later.
 
 Installation
 ------------
-Copy the demoquiz folder into your Moodle /local directory and visit your Admin Notification page to complete the installation.
+Copy the quizdemo folder into your Moodle /local directory and visit your Admin Notification page to complete the installation.
 
 Usage
 -----
