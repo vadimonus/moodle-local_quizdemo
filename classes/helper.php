@@ -164,12 +164,16 @@ class helper {
      * Returns new question id or throws exception if there is not enough questions.
      *
      * @param quiz_settings $quizobj
-     * @param object $slot
+     * @param object $questiondata
      * @param random_question_loader $randomloader
      * @return int
      * @throws moodle_exception
      */
-    private static function get_fixed_question_id(quiz_settings $quizobj, object $questiondata, random_question_loader $randomloader): int {
+    private static function get_fixed_question_id(
+        quiz_settings $quizobj,
+        object $questiondata,
+        random_question_loader $randomloader,
+    ): int {
         $filtercondition = $questiondata->filtercondition;
         $filters = $filtercondition['filter'] ?? [];
         $fixedquestionid = $randomloader->get_next_filtered_question_id($filters);
