@@ -169,11 +169,12 @@ class helper {
      * @return int
      * @throws moodle_exception
      */
-    private static function get_fixed_question_id(quiz_settings $quizobj, object $slot, random_question_loader $randomloader): int {
-        $fixedquestionid = $randomloader->get_next_question_id($slot->category, $slot->randomrecurse,
-            qbank_helper::get_tag_ids_for_slot($slot));
+    private static function get_fixed_question_id(quiz_settings $quizobj, object $questiondata, random_question_loader $randomloader): int {
+        $filtercondition = $questiondata->filtercondition;
+        $filters = $filtercondition['filter'] ?? [];
+        $fixedquestionid = $randomloader->get_next_filtered_question_id($filters);
         if ($fixedquestionid === null) {
-            throw new moodle_exception('notenoughrandomquestions', 'quiz', $quizobj->view_url(), $slot);
+            throw new moodle_exception('notenoughrandomquestions', 'quiz', $quizobj->view_url(), $questiondata);
         }
         return $fixedquestionid;
     }

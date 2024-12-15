@@ -3,7 +3,7 @@ Moodle plugin for creation demonstration version of quiz
 
 Requirements
 ------------
-- Moodle 4.2 (build 2023042400) or later.
+- Moodle 4.3 (build 2023100900) or later.
 
 Installation
 ------------
@@ -41,3 +41,5 @@ Changes
   - Tags are taken into account when choosing a random question.
 - Release 3.0 (build 2024121500):
   - Changes for Moodle 4.2.
+- Release 4.0 (build 2024121501):
+  - Changes for Moodle 4.3.
