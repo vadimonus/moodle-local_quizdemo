@@ -26,10 +26,10 @@ namespace local_quizdemo;
 
 use core_question\local\bank\random_question_loader;
 use mod_quiz\question\bank\qbank_helper;
+use mod_quiz\quiz_settings;
 use mod_quiz\structure;
 use moodle_exception;
 use qubaid_list;
-use quiz;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -67,7 +67,7 @@ class helper {
      * @throws moodle_exception
      */
     private static function get_replacements(object $cm): array {
-        $quiz = quiz::create($cm->instance, null);
+        $quiz = quiz_settings::create($cm->instance, null);
         $structure = $quiz->get_structure();
         $randomloader = static::get_random_loader($structure);
         $slots = $structure->get_slots();
@@ -119,7 +119,7 @@ class helper {
      * @throws moodle_exception
      */
     private static function replace_questions(object $cm, array $replace): void {
-        $quiz = quiz::create($cm->instance, null);
+        $quiz = quiz_settings::create($cm->instance, null);
         $structure = $quiz->get_structure();
         foreach ($replace as $slotnumber => $fixedquestionid) {
             $slot = $structure->get_slot_by_number($slotnumber);
@@ -163,13 +163,13 @@ class helper {
     /**
      * Returns new question id or throws exception if there is not enough questions.
      *
-     * @param quiz $quizobj
+     * @param quiz_settings $quizobj
      * @param object $slot
      * @param random_question_loader $randomloader
      * @return int
      * @throws moodle_exception
      */
-    private static function get_fixed_question_id(quiz $quizobj, object $slot, random_question_loader $randomloader): int {
+    private static function get_fixed_question_id(quiz_settings $quizobj, object $slot, random_question_loader $randomloader): int {
         $fixedquestionid = $randomloader->get_next_question_id($slot->category, $slot->randomrecurse,
             qbank_helper::get_tag_ids_for_slot($slot));
         if ($fixedquestionid === null) {
@@ -181,12 +181,12 @@ class helper {
     /**
      * Replaces random question in slot with fixed.
      *
-     * @param quiz $quiz
+     * @param quiz_settings $quiz
      * @param object $slot
      * @param int $fixedquestionid
      * @return void
      */
-    private static function replace_question(quiz $quiz, object $slot, int $fixedquestionid): void {
+    private static function replace_question(quiz_settings $quiz, object $slot, int $fixedquestionid): void {
         static::delete_question_set_reference($slot);
         static::add_question_reference($quiz, $slot, $fixedquestionid);
     }
@@ -208,12 +208,12 @@ class helper {
     /**
      * Adds fixed question reference for slot.
      *
-     * @param quiz $quiz
+     * @param quiz_settings $quiz
      * @param object $slot
      * @param int $fixedquestionid
      * @return void
      */
-    private static function add_question_reference(quiz $quiz, object $slot, int $fixedquestionid): void {
+    private static function add_question_reference(quiz_settings $quiz, object $slot, int $fixedquestionid): void {
         global $DB;
         $questionreferences = new \StdClass();
         $questionreferences->usingcontextid = $quiz->get_context()->id;

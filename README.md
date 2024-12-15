@@ -39,3 +39,5 @@ Changes
 - Release 2.0 (build 2023021802):
   - Plugin rewritten for Moodle 4 question structures.
   - Tags are taken into account when choosing a random question.
+- Release 3.0 (build 2024121500):
+  - Changes for Moodle 4.2.
