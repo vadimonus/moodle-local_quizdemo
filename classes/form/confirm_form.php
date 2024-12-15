@@ -45,7 +45,7 @@ class confirm_form extends \moodleform {
 
         $mform->addElement('header', 'header', get_string('confirmheader', 'local_quizdemo'));
 
-        $mform->addElement('text', 'name', get_string('newname', 'local_quizdemo'), array('size' => '64'));
+        $mform->addElement('text', 'name', get_string('newname', 'local_quizdemo'), ['size' => '64']);
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
